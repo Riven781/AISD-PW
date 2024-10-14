@@ -1,0 +1,33 @@
+Autor: Pawel Wodczynski,                               Krakow, 14.10.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwizanie zadania z Lekcji 2 - SORTOWANIE (sortowanie.cpp)
+--------------------------------------------------------------------
+
+I.  Program sortowanie.cpp zawiera 2 funkcje sortujce: 
+    -> void mergeSort(T*poczatek, T*koniec)
+    -> void sortowanieBabelkowe(T* poczatek, T* koniec)
+
+    Wystepuja rowniez funkcje takie jak:
+    -> void wyswietlSortowanieMergeSort(T *poczatek, T *koniec)
+    -> void wyswietlSortowanieBabelkowe(T *poczatek, T *koniec)
+    ktorych zadaniami sa: wyswietlenie w terminalu tablic przed posortowaniem,
+    nastepnie wykonanie odpowiedniego sortowania, i wyswietlenie w terminalu 
+    posortowanej tablicy
+.
+
+    
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

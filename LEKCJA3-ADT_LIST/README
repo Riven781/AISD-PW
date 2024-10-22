@@ -1,0 +1,23 @@
+Autor: Pawel Wodczynski,                               Krakow, 22.10.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwizanie zadania z Lekcji 3 - ADT LIST (implementacja tablicowa):
+    -> arraylist.h (szablon ArrayList)
+    -> test.h
+    -> test.cpp (plik zawierajacy funkcje testujaca ArrayList)
+    -> main.cpp
+
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

@@ -1,0 +1,23 @@
+Autor: Pawel Wodczynski,                               Krakow, 05.15.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwizanie zadania z Lekcji 5 - ADT LIST (lista podwojnie powiązana):
+    -> doublelist.h (szablon DoubleList)
+    -> test.h
+    -> test.cpp (plik zawierajacy funkcje testujaca DoubleList)
+    -> main.cpp
+
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

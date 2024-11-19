@@ -1,0 +1,24 @@
+Autor: Pawel Wodczynski,                               Krakow, 19.11.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwiazanie zadania pierwszego z Lekcji 7 - ADT STACK:
+    -> rpn.h
+    -> rpn.cpp (plik zawiera funkcje obliczajaca wartosci wyrazenia podanego w ONP)
+    -> rpnTest.h
+    -> rpnTest.cpp (plik zawierajacy funkcje testujaca algorytm funkcji rpn)
+    -> main.cpp
+
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

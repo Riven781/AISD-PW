@@ -1,0 +1,23 @@
+Autor: Pawel Wodczynski,                               Krakow, 05.12.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwiazanie zadania pierwszego z Lekcji 10 - ADT TREE:
+    -> randombinarytree.h (szablon RandomBinaryTree)
+    -> test.h
+    -> test.cpp (plik zawierajacy funkcje testujaca RandomBinaryTree)
+    -> main.cpp
+
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

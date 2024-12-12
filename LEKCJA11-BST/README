@@ -1,0 +1,23 @@
+Autor: Pawel Wodczynski,                               Krakow, 12.12.2024
+
+
+* Zawartosc:
+============
+
+Katalog zawiera rozwiazanie zadania pierwszego z Lekcji 11 - BST:
+    -> binarysearchtree.h (szablon BinarySearchTree)
+    -> test.h
+    -> test.cpp (plik zawierajacy funkcje testujace BinarySearchTree)
+    -> main.cpp
+
+-------------------------------------------------------------------
+
+Jak uruchomic programy:
+
+++++++++++++++++++++++++++
+-> Aby wykonac program  nalezy wykonac polecenie 
+        make run1
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac:
+       make clean
+

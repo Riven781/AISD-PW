@@ -1,0 +1,170 @@
+Autor: Pawel Wodczynski,                               Krakow, 29.12.2024 
+
+  
+
+  
+* Zawartosc: 
+
+============ 
+
+  
+
+Katalog zawiera projekt końcowu AISD – Truth Table Generator (Generator Tablic Prawdy): 
+
+    -> onp.h, onp.cpp (zawiera funkcje potrzebene do obliczenia wartości wyrażenia oraz wyświetlenia tablicy prawdy) 
+
+    -> logicvariable.h, logicvariable.cpp(plika zawierający klasę reprezentującą zmienne logiczne) 
+
+    -> testConvertToONP.h, testConvertToONP.cpp (plik zaweirający funkcje testujące poprawność przekształcenia wyrażenia w postaci infiksowej na postać ONP) 
+
+    -> test.h, test.cpp (plik zaweirający funkcje testujące wartości końcowe wyrażeń logicznych) 
+
+    -> utils.h, utils.cpp (plik zawierający funkcje pomocnicze) 
+
+    -> truthTable.h, truthTable.cpp (plik zawierajacy funkcje odpowiedzialne za generowanie i wyswietlanie tabel logicznych)
+
+    -> main.cpp 
+
+------------------------------------------------------------------- 
+
+Schemat działania programu:  
+
+Przykładowy INPUT:  ((p∨q)⇒r)⇔u 
+
+Następnie program (za pomocą funkcji convertToONP) przekształci zapis w postaci infiksowej na postać ONP: 
+
+pq ∨ r ⇒ u ⇔ 
+
+Tworzone są obiekty LogicVariable dla każdej zmiennej p,q,r oraz u. Taki obiekt zawiera nazwę zmiennej (lub wyrażenia w późniejszym czasie) oraz tablice wartości logicznych 0 i 1. Następnie wyliczane są wartości kolejnych operacji (za pomocą funkcji getResult): 
+
+Poniżej przedstawię ten algorytm (p,q,r,u oznaczają obiekty typu LogicVariable) 
+
+Wejscie: p  
+
+p trafia na stos:     [p] 
+
+Wejscie: q 
+
+ 
+
+q trafia na stos : [p, q] 
+
+Wejście: ∨ 
+
+Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+
+p. alternative(q)    <-------  zwraca obiekt LogicVariable o nazwie p∨q i zawierający tablice wartości logicznych, równoważną tej operacji 
+
+Następnie wynik tej operacji trafia na stos:   [p∨q ] 
+
+Wejście: r 
+
+r trafia na stos: [p∨q, r] 
+
+Wejście: ⇒ 
+
+Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+
+(p∨q). implication (r)    <-------  zwraca obiekt LogicVariable o nazwie  (p∨q)⇒r  i zawierający tablice wartości logicznych, równoważną tej operacji 
+
+Następnie wynik tej operacji trafia na stos:   [(p∨q)⇒r ] 
+
+Wejście: u 
+
+u trafia na stos [(p∨q)⇒r , u] 
+
+Wejście: ⇔ 
+
+Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+
+((p∨q)⇒r). equivalence (u)    <-------  zwraca obiekt LogicVariable o nazwie  ((p∨q)⇒r)⇔u  i zawierający tablice wartości logicznych, równoważną tej operacji 
+
+Następnie wynik tej operacji trafia na stos:   [((p∨q)⇒r)⇔u ] 
+
+Teraz na stosie znajduje się wynik całego wyrażenia. 
+
+Na podstawie tego algorytmu (i zapisywaniu kroków pośrednich) otrzymujemy dane potrzebne do wyświetlenia tabelki prawdy: 
+
+ 
+
+p | q | r | u | p ∨ q | (p ∨ q) ⇒ r | ((p ∨ q) ⇒ r) ⇔ u |  
+
+0 | 0 | 0 | 0 |   0   |      1      |          0        |  
+
+1 | 0 | 0 | 0 |   1   |      0      |          1        |  
+
+0 | 1 | 0 | 0 |   1   |      0      |          1        |  
+
+1 | 1 | 0 | 0 |   1   |      0      |          1        |  
+
+0 | 0 | 1 | 0 |   0   |      1      |          0        |  
+
+1 | 0 | 1 | 0 |   1   |      1      |          0        |  
+
+0 | 1 | 1 | 0 |   1   |      1      |          0        |  
+
+1 | 1 | 1 | 0 |   1   |      1      |          0        |  
+
+0 | 0 | 0 | 1 |   0   |      1      |          1        |  
+
+1 | 0 | 0 | 1 |   1   |      0      |          0        |  
+
+0 | 1 | 0 | 1 |   1   |      0      |          0        |  
+
+1 | 1 | 0 | 1 |   1   |      0      |          0        |  
+
+0 | 0 | 1 | 1 |   0   |      1      |          1        |  
+
+1 | 0 | 1 | 1 |   1   |      1      |          1        |  
+
+0 | 1 | 1 | 1 |   1   |      1      |          1        |  
+
+1 | 1 | 1 | 1 |   1   |      1      |          1        | 
+
+ 
+
+------------------------------------------------------------------- 
+
+Dostępne operatory: 
+
+¬ - negacja 
+
+∧ - koniunkcja 
+
+∨ - alternatywa 
+
+⇒ - implikacja 
+
+⇔- równoważność 
+
+⊕ - XOR 
+
+Dozwolone zmienne: 
+
+'p', 'q', 'r', 's', 't', 'u', 'w', 'z', 'x' 
+
+Wielokrotne występujące obok siebie operatory negacji należy oddzielać nawiasami: 
+
+¬(¬p) 
+
+¬(¬(¬p)) 
+
+-------------------------------------------------------------------- 
+
+  
+
+Jak uruchomic programy: 
+
+  
+
+++++++++++++++++++++++++++ 
+
+-> Aby wykonac program  nalezy wykonac polecenie  
+
+        make run1 
+
+  
+
+-> Aby wyczyscic zawartosc katalogu (usunac zbedne pliki), nalezy wykonac: 
+
+       make clean 

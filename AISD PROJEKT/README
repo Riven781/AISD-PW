@@ -1,5 +1,4 @@
-Autor: Pawel Wodczynski,                               Krakow, 29.12.2024 
-
+Autor: Pawel Wodczynski,                               Krakow, 09.01.2025
   
 
   
@@ -11,7 +10,7 @@ Autor: Pawel Wodczynski,                               Krakow, 29.12.2024
 
 Katalog zawiera projekt końcowu AISD – Truth Table Generator (Generator Tablic Prawdy): 
 
-    -> onp.h, onp.cpp (zawiera funkcje potrzebene do obliczenia wartości wyrażenia oraz wyświetlenia tablicy prawdy) 
+    -> onp.h, onp.cpp (zawiera funkcje potrzebne do obliczenia wartości wyrażenia oraz wyświetlenia tablicy prawdy) 
 
     -> logicvariable.h, logicvariable.cpp(plika zawierający klasę reprezentującą zmienne logiczne) 
 
@@ -27,65 +26,243 @@ Katalog zawiera projekt końcowu AISD – Truth Table Generator (Generator Tabli
 
 ------------------------------------------------------------------- 
 
-Schemat działania programu:  
+Schemat działania programu:
 
-Przykładowy INPUT:  ((p∨q)⇒r)⇔u 
+Funkcją odpowiedzialną za generowanie tabel prawdy jest:
 
-Następnie program (za pomocą funkcji convertToONP) przekształci zapis w postaci infiksowej na postać ONP: 
+std::vector<LogicVariable> generateTruthTable(std::string strExpression, bool display = true, bool onlyResult = false);
 
-pq ∨ r ⇒ u ⇔ 
+Argumenty funkcji generateTruthTable:
 
-Tworzone są obiekty LogicVariable dla każdej zmiennej p,q,r oraz u. Taki obiekt zawiera nazwę zmiennej (lub wyrażenia w późniejszym czasie) oraz tablice wartości logicznych 0 i 1. Następnie wyliczane są wartości kolejnych operacji (za pomocą funkcji getResult): 
+ - std::string strExpression (obowiązkowy)  -  wyrażenie w formacie LaTex
+ - bool display (opcjonalny) - true, jeśli chcemy wyświetlić tabelę w terminalu, false w przeciwnym wypadku
+ - bool onlyResult (opcjonalny) - true, jeśli chcemy wyświetlić tylko wartości podstawowych zmiennych logicznych oraz rezultat całego wyrażenia, false jeśli chcemy 
+   wyświetlić  wartości podstawowych zmiennych logicznych, kroki pośrednie oraz rezultat całego wyrażenia
 
-Poniżej przedstawię ten algorytm (p,q,r,u oznaczają obiekty typu LogicVariable) 
+Operatory w notacji LaTex:
+    \\\\neg   <-- operator negacji
+    \\\\and   <-- operator koniunkcji
+    \\\\or    <-- operator alternatywy
+    \\\\impl  <-- operator implikacji
+    \\\\equi  <--operator równoważności
+    \\\\xor   <--operator XOR
 
-Wejscie: p  
+Wartość zwracana funkcji generateTruthTable:
+ - vector obiektów LogicVariable (czyli poszczególnych kolumn)     <--- przydatne do testowania
 
-p trafia na stos:     [p] 
 
-Wejscie: q 
+Działanie funkcji generateTruthTable:
+    Przykładowy INPUT: ((p  \\\\or  q)  \\\\impl  r)  \\\\equi  u                         <------ dozwolone spacje między operatorami oraz operandami w celu lepszej czytelności
+    1. Przekształcenie wyrażenia LaTex do postaci, w której występują matematyczne operatory logiczne (¬,∧,∨,⇒, ⇔,⊕) za pomocą funkcji :
+        std::wstring expression = convertFromLatex(strExpression);
+    zwracany jest rozszerzony string (wstring)
+    Dla naszego przykłądowego INPUT jest to: ((p∨q)⇒r)⇔u 
 
- 
+    2. Przekształcenie wyrażenia do postaci postfiksowej za pomocą funkcji:
+        std::vector<wchar_t> convertToONP(std::wstring expression);
+    Funkcja ta przyjmuje wyrażenie z poprzedniego kroku ((p∨q)⇒r)⇔u i zwraca je w formacie ONP:
+        pq ∨ r ⇒ u ⇔ 
+    
+    Schemat działania convertToONP:
+        Iterujemy po wyrażeniu ((p∨q)⇒r)⇔u:
+            a) jeśli zmienna logiczna (operand) przenosimy ją do wyjściowego wyrażenia,
+            b) jeśli nawias otwierający przenosimy go na stos operatorów (jednocześnie umieszczając priorytet 1 na stosie priorytetów operatortów),
+            c) jeśli nawias zamykający wyciągamy wszystkie operatory do momentu napotkania nawiasu otwierającego (przenosząc je do wyjściowego wyrażenia), nawias otwierający i jego priorytet wyrzucamy ze stosów, i NIE uwzględniamy go w wyjściowym wyrażeniu
+            d) jeśli operator:
+                d1) jeśli stos operatorów jest pusty wrzucamy operator do stosu operatorów i odpowiadający mu priorytet do stosu priorytetów
+                d2) jeśli analizowany operator jest  jednoargumentowy (operator negacji) oraz operator będący na szczycie stosu jest również operatorem negacji,
+                wrzucamy analizowany operator do stosu operatorów i odpowiadający mu priorytet do stosu priorytetów
+                d3) jeśli priorytet analizowanego operatora jest większy niż priorytet operatora będącego na szczycie stosu, wrzucamy operator do stosu operatorów i odpowiadający mu priorytet do stosu priorytetów
+                d4)jeśli priorytet analizowanego operatora jest mniejszy lub równy niż priorytet operatora będącego na szczycie stosu, wyciągamy wszystkie operatory (przenosząc je do wyjściowego wyrażenia) do momentu napotkania operatora, którego priorytet będzie mniejszy od analizowanego operatora, wówczas wkładamy na stos analizowany operator do stosu operatorów i odpowiadający mu priorytet do stosu priorytetów
+            e) jeśli koniec przenosimy pozostałe operatory będące na stosie do wyjściowego wyrażenia
 
-q trafia na stos : [p, q] 
+    Przykład: ((p∨q)⇒r)⇔u
+    Analizowany znak: (
+        Korzystamy z podpunktu b
+        stos priorytetów: 1,
+        stos operatorów: (,
+        wyrażenie wyjściowe:
+    Analizowany znak: (
+        Korzystamy z podpunktu b
+        stos priorytetów: 1, 1
+        stos operatorów: (, (, 
+        wyrażenie wyjściowe:
+    Analizowany znak: p
+        Korzystamy z podpunktu a
+        stos priorytetów: 1, 1
+        stos operatorów: (, (, 
+        wyrażenie wyjściowe: p
+    Analizowany znak: ∨
+        Korzystamy z podpunktu d3
+        stos priorytetów: 1, 1, 5
+        stos operatorów: (, (, ∨
+        wyrażenie wyjściowe: p
+    Analizowany znak: q
+        Korzystamy z podpunktu a
+        stos priorytetów: 1, 1, 5
+        stos operatorów: (, (, ∨
+        wyrażenie wyjściowe: pq
+    Analizowany znak: )
+        Korzystamy z podpunktu c
+        stos priorytetów: 1,
+        stos operatorów: (,
+        wyrażenie wyjściowe: pq∨
+    Analizowany znak: ⇒
+        Korzystamy z podpunktu d3
+        stos priorytetów: 1,4
+        stos operatorów: (, ⇒
+        wyrażenie wyjściowe: pq∨
+    Analizowany znak: r
+        Korzystamy z podpunktu a
+        stos priorytetów: 1,4
+        stos operatorów: (, ⇒
+        wyrażenie wyjściowe: pq∨r
+    Analizowany znak: )
+        Korzystamy z podpunktu c
+        stos priorytetów:
+        stos operatorów: 
+        wyrażenie wyjściowe: pq∨r⇒
+    Analizowany znak: ⇔
+        Korzystamy z podpunktu d1
+        stos priorytetów: 3
+        stos operatorów: ⇔
+        wyrażenie wyjściowe: pq∨r⇒
+    Analizowany znak: u
+        Korzystamy z podpunktu a
+        stos priorytetów: 3
+        stos operatorów: ⇔
+        wyrażenie wyjściowe: pq∨r⇒u
+    KONIEC
+        Korzystamy z podpunktu e
+        stos priorytetów:
+        stos operatorów:
+        wyrażenie wyjściowe: pq∨r⇒u⇔
 
-Wejście: ∨ 
+    
+    Priorytety operatortów:
+    ¬   - 7
+    ∧   - 6
+    ∨   - 5
+    ⇒   - 4
+    ⇔   - 3
+    ⊕   - 2
+    (   - 1
 
-Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
 
-p. alternative(q)    <-------  zwraca obiekt LogicVariable o nazwie p∨q i zawierający tablice wartości logicznych, równoważną tej operacji 
+    3. Chcemy uzyskać zmienne logiczne, które składają się z nazwy oraz wartości (zer i jedynek na odpowiednich pozycjach), aby operować nimi w trakcie wyliczeń:
 
-Następnie wynik tej operacji trafia na stos:   [p∨q ] 
+    std::vector<LogicVariable> logicVariables = getListOfVariable(postfixNotation);
 
-Wejście: r 
+    Funkcja getListOfVariable zwraca vector obiektów LogicVariable, które odpowiadają wszystkim zmiennym znajdującym się w wyrażeniu.
+    W naszym wyrażeniu są 4 zmienne logiczne wektor ten wygląda więc następująco:
 
-r trafia na stos: [p∨q, r] 
+    logicVariables = {LogicVariable(p, 16, 1), LogicVariable(q, 16, 2), LogicVariable(r, 16, 4), LogicVariable(u, 16, 8)}
 
-Wejście: ⇒ 
+    Omówienie klasy LogicVariable:
+        Klasa LogicVariable odzwierciedla zmienną logiczną jej nazwę oraz wartości.
 
-Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+        LogicVariable(std::string name, int size, int step);
 
-(p∨q). implication (r)    <-------  zwraca obiekt LogicVariable o nazwie  (p∨q)⇒r  i zawierający tablice wartości logicznych, równoważną tej operacji 
+        name - nazwa zmiennej logicznej np. p
+        size - rozmiar tablicy wartości ----->  pow(2, ilosc zmiennych)
+        step - ile moze być zer/jedynek z rzędu w danej kolumnie  ----->  pow(2, index zmiennych (od 0 do ilosc zmiennych - 1))
 
-Następnie wynik tej operacji trafia na stos:   [(p∨q)⇒r ] 
+        LogicVariable::setValues(int step);  <--- funkcja ustawiająca wartości dla danej zmiennej
 
-Wejście: u 
+        Klasa LogicVariable zawiera funkcje odpowiedzialne za operacje logiczne :
 
-u trafia na stos [(p∨q)⇒r , u] 
+        LogicVariable conjunction(LogicVariable & other);
+        LogicVariable alternative(LogicVariable & other);
+        LogicVariable exclusiveOr (LogicVariable & other);
+        LogicVariable implication(LogicVariable & other);
+        LogicVariable equivalence(LogicVariable & other);
+        LogicVariable negation();
 
-Wejście: ⇔ 
+    
+    4. W celu uzyskania wyników wykonywana jest funkcja:
 
-Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+        std::vector<LogicVariable> getResult(std::vector<wchar_t> expressionList, std::vector<LogicVariable> logicVariables, bool onlyResult);
 
-((p∨q)⇒r). equivalence (u)    <-------  zwraca obiekt LogicVariable o nazwie  ((p∨q)⇒r)⇔u  i zawierający tablice wartości logicznych, równoważną tej operacji 
+        Przyjmuje ona następujące argumenty:
+            std::vector<wchar_t> expressionList  - vector wchar_t, będący wyrażeniem w postaci postfiksowej np. {p,q,∨,r,⇒,u,⇔}
+            std::vector<LogicVariable> logicVariables - vector LogicVariables np. {LogicVariable(p, 16, 1), LogicVariable(q, 16, 2), LogicVariable(r, 16, 4), LogicVariable(u, 16, 8)}
+            bool onlyResult - true jesli chcemy uzyskać tylko rezultat, false jeśli chcemy uzyskać również kroki pośtednie
 
-Następnie wynik tej operacji trafia na stos:   [((p∨q)⇒r)⇔u ] 
+        n - ilosc zmiennych logicznych (w naszym analizowanym wyrażeniu ((p∨q)⇒r)⇔u  n=4)
+        Zwraca ona vector<LogicVariable>, gdzie pierwszych n pierwszych elementów to podstawowe zmienne logiczne
+        Jeśli została wybrana opcja onlyResult = true w wektorze na pozycji n znajduje się zmienna symbolizująca wynik całego wyrażenia:
+        LogicVariables.name = ((p∨q)⇒r)⇔u
+        LogicVariables.values = [0,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1]
 
-Teraz na stosie znajduje się wynik całego wyrażenia. 
+        Jeśli została wybrana opcja onlyResult = false w wektorze znajdują się również zmienne symbolizujące przeprowadzone operacje
 
-Na podstawie tego algorytmu (i zapisywaniu kroków pośrednich) otrzymujemy dane potrzebne do wyświetlenia tabelki prawdy: 
+        Schemat działania:
+            Iterujemy po expressionList:
+            a) jeśli analizowanym symbolem jest operand wstaw do stosu LogicVariable zmienną logiczną LogicVariable o tej samej nazwie
 
- 
+                if(find(variables.begin(), variables.end(), symbol) != variables.end()){ 
+                    variablesStack.push( *find_if(logicVariables.begin(), logicVariables.end(), [&symbol](const LogicVariable& variable) {
+                        return variable.getName() == string(1, symbol);
+                    }));
+                }
+
+            b) jeśli operator, wyciągnij ze stosu odpowiednią liczbę zmiennych Logicznych i przeprowadź na nich operacje, wynik włóż na stos
+        
+
+        Przykład działania:
+
+            Iterujemy po expressionList {p,q,∨,r,⇒,u,⇔}:
+
+            Analizowany znak: p  
+            zmienna LogicVariable, której pole name jest równe p trafia na stos:     [p]                        
+
+            Analizowany znak: q 
+            zmienna LogicVariable, której pole name jest równe q trafia na stos: [p, q] 
+
+            Analizowany znak: ∨ 
+            Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+            p. alternative(q)    <-------  zwraca obiekt LogicVariable o nazwie p∨q i zawierający tablice wartości logicznych, równoważną tej operacji 
+            Następnie wynik tej operacji trafia na stos:   [p∨q] 
+
+            Analizowany znak: r 
+            zmienna LogicVariable, której pole name jest równe r trafia na stos: [p∨q, r] 
+
+            Analizowany znak: ⇒ 
+            Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+            (p∨q). implication (r)    <-------  zwraca obiekt LogicVariable o nazwie  (p∨q)⇒r  i zawierający tablice wartości logicznych, równoważną tej operacji 
+            Następnie wynik tej operacji trafia na stos:   [(p∨q)⇒r ] 
+
+            Analizowany znak: u 
+            zmienna LogicVariable, której pole name jest równe u  trafia na stos: [(p∨q)⇒r , u] 
+
+            Analizowany znak: ⇔ 
+            Jest to operator dwuargumentowy wyciągamy dwie zmienne logiczne ze stosu i wykonywana jest operacja: 
+            ((p∨q)⇒r). equivalence (u)    <-------  zwraca obiekt LogicVariable o nazwie  ((p∨q)⇒r)⇔u  i zawierający tablice wartości logicznych, równoważną tej operacji 
+            Następnie wynik tej operacji trafia na stos:   [((p∨q)⇒r)⇔u ] 
+
+            Teraz na stosie znajduje się wynik całego wyrażenia. 
+
+        Na podstawie tego algorytmu (i zapisywaniu kroków pośrednich) otrzymujemy dane potrzebne do wyświetlenia tabelki prawdy.
+
+    5) Funkcja wyświetlająca tablice prawdy w termianlu:
+        void displayTruthTable(std::vector<LogicVariable> logicVariables, int rowsNumber);
+
+        Przyjmowane argumenty:
+        std::vector<LogicVariable> logicVariables - wektror zmiennych logicznych LogicVariable (poszczególnych kolumn)
+        int rowsNumber - numer wierszy    <---- pow(2, liczba podstawowych zmiennych logicznych)
+
+        W wyświetlonej w terminalu Tabeli Prawdy pojawiają się symbole zastępcze zamiast symboli matematycznych:
+
+        ~   -  ¬
+        ^   -  ∧
+        v   -  ∨
+        ->  -  ⇒
+        <=> -  ⇔
+        @   -  ⊕
+
+
+
+        
 
 p | q | r | u | p ∨ q | (p ∨ q) ⇒ r | ((p ∨ q) ⇒ r) ⇔ u |  
 
@@ -125,29 +302,11 @@ p | q | r | u | p ∨ q | (p ∨ q) ⇒ r | ((p ∨ q) ⇒ r) ⇔ u |
 
 ------------------------------------------------------------------- 
 
-Dostępne operatory: 
-
-¬ - negacja 
-
-∧ - koniunkcja 
-
-∨ - alternatywa 
-
-⇒ - implikacja 
-
-⇔- równoważność 
-
-⊕ - XOR 
 
 Dozwolone zmienne: 
 
 'p', 'q', 'r', 's', 't', 'u', 'w', 'z', 'x' 
 
-Wielokrotne występujące obok siebie operatory negacji należy oddzielać nawiasami: 
-
-¬(¬p) 
-
-¬(¬(¬p)) 
 
 -------------------------------------------------------------------- 
 

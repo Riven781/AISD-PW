@@ -53,7 +53,7 @@ vector<wchar_t> convertToONP(wstring expression){
             }
             else{
                 
-                if (priority > priorityStack.top() || (symbol == L'¬' && operatorsStack.top() == L'¬')){ //potencjalne zamieszanie
+                if (priority > priorityStack.top() || (symbol == L'¬' && operatorsStack.top() == L'¬')){
                     operatorsStack.push(*it);
                     priorityStack.push(priority);
                 }

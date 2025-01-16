@@ -9,6 +9,7 @@ using namespace std;
 LogicVariable::LogicVariable(string name, int size, int step) : name(name), size(size),  values(nullptr){
     values = new int[size]{0};
     setValues(step);
+
 };
 
 LogicVariable::~LogicVariable(){
